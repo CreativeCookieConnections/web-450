@@ -23,15 +23,6 @@ function createComposerService() {
         return database;
     }
 
-    // Add a new composer to the database
-    async function addComposer(id, data) {
-        if (database.hasOwnProperty(id)) {
-            throw new Error('Composer with this ID already exists');
-        }
-        database[id] = data;
-        return id;
-    }
-
     // Retrieve a specific composer by ID
     async function getComposerById(id) {
         if (!database.hasOwnProperty(id)) {
@@ -42,7 +33,7 @@ function createComposerService() {
 
     // Update an existing composer in the database
     async function modifyComposer(id, data) {
-        if (!database.hasOwnProperty(id)) {
+        if (!data.hasOwnProperty(id)) {
             throw new Error('Composer not found in the database');
         }
         database[id] = data;
