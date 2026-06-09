@@ -58,5 +58,17 @@ router.post('/', async function(req, res, next) {
   }
 });
 
+router.delete('/:id', async function(req, res, next) {
+  try {
+    const id = await composerService.deleteComposer(req.params.id);
+    res.json({ id });
+  } catch (err) {
+    console.error(err);
+    if (err.message === 'Composer not found in the database') {
+      return next (createError(404, err.message));
+    }
+    next(err);
+  }
+});
 
 module.exports = router;
