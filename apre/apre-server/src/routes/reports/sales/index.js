@@ -78,4 +78,39 @@ router.get('/regions/:region', (req, res, next) => {
   }
 });
 
+/**
+ * @description
+ *
+ * GET /summary
+ *
+ * Fetches total sales grouped by region.
+ */
+router.get('/summary', (req, res, next) => {
+  try {
+    mongo (async db => {
+      const salesSummary = await db.collection('sales').aggregate([
+        {
+          $group: {
+            _id: '$region',
+            totalSales: { $sum: '$amount' }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            region: '$_id',
+            totalSales: 1
+          }
+        },
+        { $sort: { region: 1 } }
+      ]).toArray();
+
+      res.send(salesSummary);
+    }, next);
+  } catch (err) {
+    console.error('Error getting sales summary: ', err);
+    next(err);
+  }
+});
+
 module.exports = router;
