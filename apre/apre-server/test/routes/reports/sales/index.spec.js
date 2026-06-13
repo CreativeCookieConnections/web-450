@@ -143,3 +143,70 @@ describe('Apre Sales Report API - Sales by Region', () => {
     });
   });
 });
+
+// Test the monthly sales API
+describe('Apre sales Report API - Monthly Sales', () => {
+  beforeEach(() => {
+    mongo.mockClear();
+  });
+
+  // Test 1: should return monthly sales data
+  it('should fetch total sales grouped by month', async () => {
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([
+            { month: 'January', totalSales: 5000 },
+            { month: 'February', totalSales: 7000 },
+            { month: 'March', totalSales: 6000 }
+          ])
+        })
+      };
+
+      await callback(db);
+
+    });
+
+    const resposne = await request(app).get('/api/reports/sales/monthly-sales'); // Send a GET request to the monthly-sales endpoint
+    
+    expect(resposne.status).toBe(200); // Expect a 200 status code
+    expect(resposne.body).toEqual([ // Expect the response body to match the expected data
+      { month: 'January', totalSales: 5000 },
+      { month: 'February', totalSales: 7000 },
+      { month: 'March', totalSales: 6000 }
+    ]);
+  });
+
+  // Test 2: should return 200 with empty array if no sales data found
+  it('should return 200 with an empty array if no monthly sales data is found', async () => {
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([])
+        })
+      };
+      
+      await callback(db);
+    });
+
+    const response = await request(app).get('/api/reports/sales/monthly-sales'); // Send a GET request to the monthly-sales endpoint
+
+    expect(response.status).toBe(200); // Expect a 200 status code
+    expect(response.body).toEqual([]); // Expect the response body to match the expected data
+  });
+
+  // Test 3: should return 404 for an invalid endpoint
+  it('should return 404 for an invalid endpoint', async () => {
+    const response = await request(app).get('/api/reports/sales/invalid-endpoint'); // Send a GET request to an invalid endpoint
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ // Expect the response body to match the expected data
+      message: 'Not Found',
+      status: 404,
+      type: 'error'
+    });
+  });
+
+});

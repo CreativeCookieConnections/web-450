@@ -78,4 +78,48 @@ router.get('/regions/:region', (req, res, next) => {
   }
 });
 
+/**
+ * @description
+ * 
+ * GET /monthly-sales
+ * 
+ * Fetches total sales amount grouped by month.
+ * 
+ * Example:
+ * fetch('/monthly-sales')
+ * .then(response => response.json())
+ * .then(data => console.log(data));
+ */
+
+router.get('/monthly-sales', (req, res, next) => {
+  try {
+    mongo(async db => {
+      const monthlySales = await db.collection('sales').aggregate([
+        {
+          $group: {
+            _id: '$month',
+            totalSales: { $sum: '$amount' }
+        }
+        },
+
+        {
+          $project: {
+            _id: 0,
+            month: '$_id',
+            totalSales: 1
+          }
+        },
+
+        {
+          $sort: { month: 1 }
+        }
+      ]).toArray();
+      res.send(monthlySales);
+    }, next);
+  } catch (err) {
+    console.error('Error getting monthly sales data: ', err);
+    next(err);
+  }
+});
+
 module.exports = router;
