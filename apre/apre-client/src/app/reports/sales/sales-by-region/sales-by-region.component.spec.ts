@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SalesByRegionComponent } from './sales-by-region.component';
-import it from '@angular/common/locales/extra/it';
 
 describe('SalesByRegionComponent', () => {
   let component: SalesByRegionComponent;
