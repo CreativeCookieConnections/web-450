@@ -42,7 +42,8 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="form__actions">
-          <input type="submit" class="button button--primary" value="Submit">
+        <!-- APRE Week 3 Minor Task: Modified the submit button text to 'Update User' -->
+          <input type="submit" class="button button--primary" value="Update User">
         </div>
       </form>
       <br />
