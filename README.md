@@ -61,3 +61,23 @@ The courses repository consist of two directories: data-files and examples. The 
 git clone https://github.com/buwebdev/web-450.git
 cd web-450
 ```
+
+## Assignment 3.3 — M-083: Call Duration by Date Range
+
+### What Was Added
+- **Server API:** Added `call-duration-by-date-range` route in `apre-server/src/routes/agent-performance/index.js` — fetches call duration data for agents within a specified date range
+- **Server Tests:** Added `apre-server/test/routes/reports/call-duration/index.spec.js` with 3 unit tests
+- **Client Component:** Updated `apre-client/src/app/reports/agent-performance/call-duration-by-date-range/call-duration-by-date-range.component.ts` — displays call duration data using ChartComponent
+- **Client Tests:** Updated `apre-client/src/app/reports/agent-performance/call-duration-by-date-range/call-duration-by-date-range.component.spec.ts` with 3 unit tests
+
+### Running the Server Tests
+```bash
+cd apre-server
+npm test
+```
+
+### Running the Client Tests
+```bash
+cd apre-client
+ng test --watch=false
+```
