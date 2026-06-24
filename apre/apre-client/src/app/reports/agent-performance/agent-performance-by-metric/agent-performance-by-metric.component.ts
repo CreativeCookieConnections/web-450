@@ -25,7 +25,7 @@ import { environment } from '../../../../environments/environment';
       <div class="calendar-form">
         <div class="calendar-form__group">
           <div class="calendar-form__item">
-            <label class="calendar-form_label" for="metricType">Metric Type:</label>
+            <label class="calendar-form__label" for="metricType">Metric Type:</label>
             <select class="select" id="metricType" (change)="onMetricTypeChange($event)">
               <option value="">--  Select Metric Type --</option>
               <option value="callDuration">Call Duration</option>
@@ -33,12 +33,12 @@ import { environment } from '../../../../environments/environment';
               <option value="satisfactionScore">Satisfaction Score</option>
             </select>
           </div>
-          <div class="calandar-form__item">
-            <label class="calandar-form__label" for="startDate">Start Date:</label>
+          <div class="calendar-form__item">
+            <label class="calendar-form__label" for="startDate">Start Date:</label>
             <app-calendar (dateSelected)="onStartDateSelected($event)"></app-calendar>
           </div>
-          <div class="calandar-form__item">
-            <label class="calandar-form__label" for="endDate">End Date:</label>
+          <div class="calendar-form__item">
+            <label class="calendar-form__label" for="endDate">End Date:</label>
             <app-calendar (dateSelected)="onEndDateSelected($event)"></app-calendar>
           </div>
         </div>
@@ -57,7 +57,7 @@ import { environment } from '../../../../environments/environment';
         <div class="card chart-card">
           <app-chart
             [type]="'bar'"
-            [label]="'metricType'"
+            [label]="metricType"
             [data]="metricValues"
             [labels]="agents">
           </app-chart>
@@ -97,7 +97,7 @@ import { environment } from '../../../../environments/environment';
     flex: 1;
    }
 
-   .calendar-form_label {
+   .calendar-form__label {
     padding-right: 10px;
   }
 
@@ -176,8 +176,17 @@ export class AgentPerformanceByMetricComponent {
 
       this.http.get(`${environment.apiBaseUrl}/reports/agent-performance/by-metric-type?metricType=${this.metricType}&startDate=${startDateISO}&endDate=${endDateISO}`).subscribe({
         next: (data: any) => {
-          this.agents = data[0].agents;
-          this.metricValues = data[0].values;
+          const payload = Array.isArray(data) ? data[0] : data;
+
+          if (!payload || !payload.agents || !payload.values) {
+            this.agents = [];
+            this.metricValues = [];
+            this.tableData = [];
+            return;
+          }
+
+          this.agents = payload.agents;
+          this.metricValues = payload.values;
 
           //Build table data from agents and values arrays
           this.tableData = this.agents.map((agent: string, index: number) => ({
