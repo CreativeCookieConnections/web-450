@@ -26,6 +26,8 @@ import { ChartComponent } from '../../../shared/chart/chart.component';
                         [labels]="months">
                     </app-chart>
                 </div>
+            } @else {
+                <p class="no-data-message">No monthly sales data available.</p>
             }
         </div>
             `,
@@ -41,6 +43,11 @@ import { ChartComponent } from '../../../shared/chart/chart.component';
                 width: 50%;
                 margin: 20px 0;
             }
+
+            .no-data-message {
+                color: #6b7280;
+                font-weight: 600;
+            }
         `]
 })
 
@@ -55,7 +62,7 @@ export class SalesByMonthComponent implements AfterViewInit {
         this.http.get(`${environment.apiBaseUrl}/reports/sales/monthly-sales`).subscribe({
             next: (data: any) => {
                 this.totalSales = data.map((s: any) => s.totalSales); // Map the total sales from the API response to the totalSales array
-                this.months = data.map((s: any) => s.month); // Map the months from the API response to the months array
+                this.months = data.map((s: any) => s.month || 'Unknown'); // Map months and provide a fallback label when month is missing
 
                 this.cdr.markForCheck(); // Mark the component for check to trigger change detection
                 this.cdr.detectChanges(); // Trigger change detection to update the view with the new data

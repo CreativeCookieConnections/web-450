@@ -73,6 +73,8 @@ import { environment } from '../../../../environments/environment';
           [headerBackground]="'primary'">
         </app-table>
       </div>
+
+      <p *ngIf="noDataMessage" class="no-data-message">{{ noDataMessage }}</p>
         
     </div>
   `,
@@ -91,13 +93,18 @@ import { environment } from '../../../../environments/environment';
    .calendar-form__group {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    align-items: end;
    }
 
    .calendar-form__item {
-    flex: 1;
+    flex: 1 1 220px;
+    min-width: 220px;
    }
 
    .calendar-form__label {
+    display: block;
+    margin-bottom: 6px;
     padding-right: 10px;
   }
 
@@ -110,6 +117,18 @@ import { environment } from '../../../../environments/environment';
     width: 100%;
     padding: 8px;
     margin-top: 5px;
+    min-height: 38px;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 768px) {
+    .calendar-form {
+      width: 95%;
+    }
+
+    .calendar-form__item {
+      min-width: 100%;
+    }
   }
 
   .view-toggle {
@@ -127,6 +146,13 @@ import { environment } from '../../../../environments/environment';
     width: 100%;
     margin: 20px 0;
   }
+
+  .no-data-message {
+    margin-top: 16px;
+    text-align: center;
+    color: #6b7280;
+    font-weight: 600;
+  }
 `
 })
 
@@ -140,6 +166,7 @@ export class AgentPerformanceByMetricComponent {
   tableHeaders: string[] = ['Agent', 'Value'];
   showChart: boolean = false;
   showTable: boolean = false;
+  noDataMessage: string = '';
 
   constructor(private http: HttpClient) { }
     
@@ -176,17 +203,29 @@ export class AgentPerformanceByMetricComponent {
 
       this.http.get(`${environment.apiBaseUrl}/reports/agent-performance/by-metric-type?metricType=${this.metricType}&startDate=${startDateISO}&endDate=${endDateISO}`).subscribe({
         next: (data: any) => {
+          this.noDataMessage = '';
           const payload = Array.isArray(data) ? data[0] : data;
 
           if (!payload || !payload.agents || !payload.values) {
             this.agents = [];
             this.metricValues = [];
             this.tableData = [];
+            this.showChart = false;
+            this.showTable = false;
+            this.noDataMessage = 'No data found for the selected metric type and date range.';
             return;
           }
 
           this.agents = payload.agents;
           this.metricValues = payload.values;
+
+          if (!this.agents.length || !this.metricValues.length) {
+            this.tableData = [];
+            this.showChart = false;
+            this.showTable = false;
+            this.noDataMessage = 'No data found for the selected metric type and date range.';
+            return;
+          }
 
           //Build table data from agents and values arrays
           this.tableData = this.agents.map((agent: string, index: number) => ({
@@ -200,6 +239,9 @@ export class AgentPerformanceByMetricComponent {
 
         error: (error: any) => {
           console.error('Error fetching agent performance by metric type:', error);
+          this.showChart = false;
+          this.showTable = false;
+          this.noDataMessage = 'Unable to fetch agent performance data. Please try again.';
         },
 
         complete: () => {

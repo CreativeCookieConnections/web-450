@@ -96,8 +96,46 @@ router.get('/monthly-sales', (req, res, next) => {
     mongo(async db => {
       const monthlySales = await db.collection('sales').aggregate([
         {
+          $addFields: {
+            monthLabel: {
+              $ifNull: [
+                '$month',
+                {
+                  $ifNull: [
+                    {
+                      $cond: [
+                        { $eq: [{ $type: '$date' }, 'date'] },
+                        { $dateToString: { format: '%B', date: '$date' } },
+                        {
+                          $cond: [
+                            { $eq: [{ $type: '$date' }, 'string'] },
+                            {
+                              $dateToString: {
+                                format: '%B',
+                                date: {
+                                  $dateFromString: {
+                                    dateString: '$date',
+                                    onError: null,
+                                    onNull: null
+                                  }
+                                }
+                              }
+                            },
+                            null
+                          ]
+                        }
+                      ]
+                    },
+                    'Unknown'
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
           $group: {
-            _id: '$month',
+            _id: '$monthLabel',
             totalSales: { $sum: '$amount' }
         }
         },
@@ -106,12 +144,27 @@ router.get('/monthly-sales', (req, res, next) => {
           $project: {
             _id: 0,
             month: '$_id',
-            totalSales: 1
+            totalSales: 1,
+            monthOrder: {
+              $indexOfArray: [
+                [
+                  'January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'
+                ],
+                '$_id'
+              ]
+            }
           }
         },
 
         {
-          $sort: { month: 1 }
+          $sort: { monthOrder: 1 }
+        },
+
+        {
+          $project: {
+            monthOrder: 0
+          }
         }
       ]).toArray();
       res.send(monthlySales);
