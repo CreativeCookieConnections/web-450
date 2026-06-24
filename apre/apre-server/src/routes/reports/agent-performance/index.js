@@ -170,6 +170,7 @@ router.get('/by-metric-type', (req, res, next) => {
         {
           $project: {
             _id: 0,
+            metricType: metricType,
             agents: 1,
             values: 1
           }
