@@ -93,4 +93,95 @@ router.get('/call-duration-by-date-range', (req, res, next) => {
   }
 });
 
+/**
+ * Author: Aisha Keller
+ * Date: 06/23/2026
+ * File: index.js
+ * Description: m-090 Apre agent performance API for fetching agent performance data by metric type.
+ */
+
+/**
+ * @description
+ *
+ * GET /by-metric-type
+ * 
+ * Fetches agent performance data based on a specified metric type and date range.
+ *
+ * Example:
+ * fetch('/by-metric-type?metricType=callDuration&startDate=2023-01-01&endDate=2023-01-31')
+ *  .then(response => response.json())
+ *  .then(data => console.log(data));
+ */
+router.get('/by-metric-type', (req, res, next) => {
+  try {
+    const { startDate, endDate, metricType } = req.query;
+
+    if (!startDate || !endDate) {
+      return next(createError(400, 'Start date and end date are required'));
+    }
+
+    if (!metricType) {
+      return next(createError(400, 'Metric type is required'));
+    }
+
+    console.log('Fetching agent performance report for metric type:', metricType, 'and date range:', startDate, endDate);
+
+    mongo(async db => {
+      const data = await db.collection('agentPerformance').aggregate([
+        {
+          $match: {
+            date: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate)
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'agents',
+            localField: 'agentId',
+            foreignField: 'agentId',
+            as: 'agentDetails'
+          }
+        },
+        {
+          $unwind: '$agentDetails'
+        },
+        {
+          $group: {
+            _id: '$agentDetails.name',
+            metricValue: { $sum: { $ifNull: [`$${metricType}`, 0] } }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            agent: '$_id',
+            value: '$metricValue'
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            agents: { $push: '$agent' },
+            values: { $push: '$value' }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            agents: 1,
+            values: 1
+          }
+        }
+      ]).toArray();
+
+      res.send(data);
+    }, next);
+  } catch (err) {
+    console.error('Error in /by-metric-type', err);
+    next(err);
+  }
+});
+
 module.exports = router;
