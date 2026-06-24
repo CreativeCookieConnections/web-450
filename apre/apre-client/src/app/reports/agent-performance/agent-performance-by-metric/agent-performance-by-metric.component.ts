@@ -166,6 +166,7 @@ export class AgentPerformanceByMetricComponent {
   tableHeaders: string[] = ['Agent', 'Value'];
   showChart: boolean = false;
   showTable: boolean = false;
+  // Message shown when a valid request returns no records for the selected filters.
   noDataMessage: string = '';
 
   constructor(private http: HttpClient) { }
@@ -204,6 +205,7 @@ export class AgentPerformanceByMetricComponent {
       this.http.get(`${environment.apiBaseUrl}/reports/agent-performance/by-metric-type?metricType=${this.metricType}&startDate=${startDateISO}&endDate=${endDateISO}`).subscribe({
         next: (data: any) => {
           this.noDataMessage = '';
+          // Normalize API output because some endpoints return [payload] while others return payload.
           const payload = Array.isArray(data) ? data[0] : data;
 
           if (!payload || !payload.agents || !payload.values) {
@@ -227,7 +229,7 @@ export class AgentPerformanceByMetricComponent {
             return;
           }
 
-          //Build table data from agents and values arrays
+          // Keep table rows in the same order as chart labels/values for one-to-one comparison.
           this.tableData = this.agents.map((agent: string, index: number) => ({
             'Agent': agent,
             'Value': this.metricValues[index]
@@ -241,6 +243,7 @@ export class AgentPerformanceByMetricComponent {
           console.error('Error fetching agent performance by metric type:', error);
           this.showChart = false;
           this.showTable = false;
+          // Avoid a blank page on API errors by showing a clear user-facing status message.
           this.noDataMessage = 'Unable to fetch agent performance data. Please try again.';
         },
 

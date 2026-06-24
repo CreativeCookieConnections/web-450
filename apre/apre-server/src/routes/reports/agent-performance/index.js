@@ -124,6 +124,7 @@ router.get('/by-metric-type', (req, res, next) => {
       return next(createError(400, 'Metric type is required'));
     }
 
+    // Map supported UI metric types to MongoDB accumulator logic.
     const metricMap = {
       callDuration: {
         accumulator: { $sum: '$callDuration' },
@@ -149,6 +150,7 @@ router.get('/by-metric-type', (req, res, next) => {
       }
     };
 
+    // Guard against unsupported metric names to prevent unsafe dynamic field access.
     if (!metricMap[metricType]) {
       return next(createError(400, `Unsupported metric type: ${metricType}`));
     }
@@ -179,6 +181,7 @@ router.get('/by-metric-type', (req, res, next) => {
         {
           $group: {
             _id: '$agentDetails.name',
+            // Apply the selected metric's aggregation rule per agent.
             metricValue: metricMap[metricType].accumulator
           }
         },

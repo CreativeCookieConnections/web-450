@@ -72,4 +72,58 @@ describe('Apre Agent Performance API', () => {
       type: 'error'
     });
   });
+
+  // m-090 Test the by-metric-type endpoint
+  it('should fetch agent performance data by metric type', async () => {
+    mongo.mockImplementation(async (callback) => {
+      const db = {
+        collection: jest.fn().mockReturnThis(),
+        aggregate: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([
+            {
+              agents: ['Agent A', 'Agent B'],
+              values: [120, 90],
+              metricType: 'callDuration'
+            }
+          ])
+        })
+      };
+      await callback(db);
+    });
+
+    const response = await request(app).get('/api/reports/agent-performance/by-metric-type?metricType=callDuration&startDate=2023-01-01&endDate=2023-12-31');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        agents: ['Agent A', 'Agent B'],
+        values: [120, 90],
+        metricType: 'callDuration'
+      }
+    ]);
+  });
+
+  // m-090 Test the by-metric-type endpoint with missing metricType
+  it('should return 400 if metricType is missing', async () => {
+    const response = await request(app).get('/api/reports/agent-performance/by-metric-type?startDate=2023-01-01&endDate=2023-12-31');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: 'Metric type is required',
+      status: 400,
+      type: 'error'
+    });
+  });
+
+  // m-090 Test the by-metric-type endpoint with unsupported metricType
+  it('should return 400 for an unsupported metric type', async () => {
+    const response = await request(app).get('/api/reports/agent-performance/by-metric-type?metricType=callsHandled&startDate=2023-01-01&endDate=2023-12-31');
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: 'Unsupported metric type: callsHandled',
+      status: 400,
+      type: 'error'
+    });
+  });
 });
