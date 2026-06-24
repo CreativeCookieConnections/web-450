@@ -124,6 +124,35 @@ router.get('/by-metric-type', (req, res, next) => {
       return next(createError(400, 'Metric type is required'));
     }
 
+    const metricMap = {
+      callDuration: {
+        accumulator: { $sum: '$callDuration' },
+        outputField: 'value'
+      },
+      averagePerformance: {
+        accumulator: {
+          $avg: {
+            $avg: '$performanceMetrics.value'
+          }
+        },
+        outputField: 'value'
+      },
+      feedbackCount: {
+        accumulator: {
+          $sum: {
+            $size: {
+              $ifNull: ['$customerFeedback', []]
+            }
+          }
+        },
+        outputField: 'value'
+      }
+    };
+
+    if (!metricMap[metricType]) {
+      return next(createError(400, `Unsupported metric type: ${metricType}`));
+    }
+
     console.log('Fetching agent performance report for metric type:', metricType, 'and date range:', startDate, endDate);
 
     mongo(async db => {
@@ -150,7 +179,7 @@ router.get('/by-metric-type', (req, res, next) => {
         {
           $group: {
             _id: '$agentDetails.name',
-            metricValue: { $sum: { $ifNull: [`$${metricType}`, 0] } }
+            metricValue: metricMap[metricType].accumulator
           }
         },
         {

@@ -29,8 +29,8 @@ import { environment } from '../../../../environments/environment';
             <select class="select" id="metricType" (change)="onMetricTypeChange($event)">
               <option value="">--  Select Metric Type --</option>
               <option value="callDuration">Call Duration</option>
-              <option value="callsHandled">Calls Handled</option>
-              <option value="satisfactionScore">Satisfaction Score</option>
+              <option value="averagePerformance">Average Performance</option>
+              <option value="feedbackCount">Customer Feedback Count</option>
             </select>
           </div>
           <div class="calendar-form__item">
