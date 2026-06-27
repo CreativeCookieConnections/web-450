@@ -25,6 +25,26 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-//
+// POST request to add a new plant document to the collection.
+router.post('/', async (req, res, next) => {
+    try {
+        const payload = {
+            ...req.body,
+            gardenId: req.params.gardenId
+        }
+        const plant = new Plant(payload);
+        await plant.save();
+
+        res.send({
+            message: 'Plant created successfully',
+            id: plant._id
+        });
+        } catch (err) {
+            console.error(`Error while creating plant: ${err}`);
+            next(err);
+        }
+});
+
+
 
 module.exports = router;
