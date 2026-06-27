@@ -45,6 +45,24 @@ router.post('/', async (req, res, next) => {
         }
 });
 
-// PATCH
+// PATCH request to update a plant document in the plants collection.
+router.patch('/:id', async (req, res, next) => {
+    try {
+        const plant = await Plant.findOneAndUpdate({_id:req.params.plantId});
+        plant.set(req.body);
+
+        await plant.save();
+
+        res.send({
+            message: 'Plant updated successfully',
+            id: plant._id
+        });
+    } catch (err) {
+        console.error(`Error while updating plant: ${err}`);
+        next(err);
+    }
+});
+
+
 
 module.exports = router;
