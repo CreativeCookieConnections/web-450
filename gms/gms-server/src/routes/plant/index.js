@@ -63,6 +63,19 @@ router.patch('/:id', async (req, res, next) => {
     }
 });
 
-
+// DELETE request to delete a plant document in the plants collection.
+router.delete('/:id', async (req, res, next) => {
+    try {
+        await Plant.deleteOne({_id:req.params.plantId});
+        
+        res.send({
+            message: 'Plant deleted successfully',
+            id: req.params.plantId
+        });
+    } catch (err) {
+        console.error(`Error while deleting plant: ${err}`);
+        next(err);
+    }
+});
 
 module.exports = router;
