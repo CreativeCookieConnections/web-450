@@ -8,6 +8,8 @@
 // require statements
 const express = require('express');
 const router = express.Router();
+const gardenRouter = require('./garden');
+const plantRouter = require('./plant');
 
 /**
  * @description
@@ -39,5 +41,8 @@ router.get('/', function(req, res, next) {
     message: `Hello from the ${appName} server!`
   });
 });
+
+router.use('/gardens', gardenRouter);
+router.use('/plants', plantRouter);
 
 module.exports = router;

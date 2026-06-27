@@ -5,9 +5,9 @@
  * Description: sample data for gm
  */
 
-const mongoose = require('mongoose');
-const { Garden } = require('../models/garden');
-const { Plant } = require('../models/plant');
+const mongoose = require('../gms-server/node_modules/mongoose');
+const { Garden } = require('../gms-server/src/models/garden');
+const { Plant } = require('../gms-server/src/models/plant');
 
 // Connect to MongoDB
 

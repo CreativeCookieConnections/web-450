@@ -10,6 +10,7 @@ const express = require('express');
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 const { notFoundHandler, errorHandler } = require('./error-handler');
 
 // Importing the index router
@@ -17,6 +18,17 @@ const indexRouter = require('./routes/index');
 
 // Variable declaration for the express app
 let app = express();
+
+const connectionString = process.env.MONGODB_URI || 'mongodb+srv://gm_user:s3cret@bellevueuniversity.bfy9zvm.mongodb.net/?appName=BellevueUniversity';
+const dbName = process.env.MONGODB_DB_NAME || 'gms';
+
+mongoose.connect(connectionString, { dbName })
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((err) => {
+    console.error(`MongoDB connection error: ${err}`);
+  });
 
 // CORS configuration
 app.use((req, res, next) => {
