@@ -1,6 +1,12 @@
 const express = require('express');
+const Ajv = require('ajv');
+const createError = require('http-errors');
 const router = express.Router();
 const { Garden } = require('../../models/garden');
+const { addGardenSchema } = require('../../schemas/garden');
+
+const ajv = new Ajv();
+const validateAddGarden = ajv.compile(addGardenSchema);
 
 
 // GET request to return a list of documents from the gardens collection.
