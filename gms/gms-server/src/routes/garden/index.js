@@ -34,8 +34,14 @@ router.get('/:gardenId', async (req, res, next) => {
 // POST request to create garden document to the garden collection.
 router.post('/', async (req, res, next) => {
     try {
+        const valid = validateAddGarden(req.body);
+
+        if (!valid) {
+            return next(createError(400, ajv.errorsText(validateAddGarden.errors)));
+        }
         const newGarden = new Garden(req.body);
         await newGarden.save();
+        
         res.send({
             message: 'Garden created successfully',
             gardenId: newGarden.gardenId
