@@ -56,11 +56,14 @@ router.post('/', async (req, res, next) => {
 //PATCH request to update a garden document by gardenId in the gardens collection.
 router.patch('/:gardenId', async (req, res, next) => {
     try {
+        const garden = await Garden.findOne({ gardenId: req.params.gardenId });
+
         const valid = validateUpdateGarden(req.body);
+
         if (!valid) {
             return next(createError(400, ajv.errorsText(validateUpdateGarden.errors)));
         }
-        const garden = await Garden.findOneAndUpdate({ gardenId: req.params.gardenId });
+        
         garden.set({
             name: req.body.name,
             location: req.body.location,
