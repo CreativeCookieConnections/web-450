@@ -1,6 +1,12 @@
 const express = require('express');
+const Ajv = require('ajv');
+const createError = require('http-errors');
 const { Plant } = require('../../models/plant');
+const { addPlantSchema } = require('../../schemas/plant');
 const router = express.Router();
+
+const ajv = new Ajv();
+const validateAddPlant = ajv.compile(addPlantSchema);
 
 //GET all plants
 router.get('/', async (req, res, next) => {
