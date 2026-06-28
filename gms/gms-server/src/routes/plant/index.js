@@ -34,6 +34,12 @@ router.get('/:id', async (req, res, next) => {
 // POST request to add a new plant document to the collection.
 router.post('/', async (req, res, next) => {
     try {
+        const valid = validateAddPlant(req.body);
+
+        if (!valid) {
+            return next(createError(400, ajv.errorsText(validateAddPlant.errors)));
+        }
+        
         const payload = {
             ...req.body,
             gardenId: req.params.gardenId
