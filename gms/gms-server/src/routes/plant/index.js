@@ -2,11 +2,12 @@ const express = require('express');
 const Ajv = require('ajv');
 const createError = require('http-errors');
 const { Plant } = require('../../models/plant');
-const { addPlantSchema } = require('../../schemas/plant');
+const { addPlantSchema, updatePlantSchema } = require('../../schemas/plant');
 const router = express.Router();
 
 const ajv = new Ajv();
 const validateAddPlant = ajv.compile(addPlantSchema);
+const validateUpdatePlant = ajv.compile(updatePlantSchema);
 
 //GET all plants
 router.get('/', async (req, res, next) => {
@@ -60,9 +61,15 @@ router.post('/', async (req, res, next) => {
 // PATCH request to update a plant document in the plants collection.
 router.patch('/:id', async (req, res, next) => {
     try {
-        const plant = await Plant.findOneAndUpdate({_id:req.params.plantId});
-        plant.set(req.body);
+        const plant = await Plant.findOne({_id:req.params.plantId});
 
+        const valid = validateUpdatePlant(req.body);
+
+        if (!valid) {
+            return next(createError(400, ajv.errorsText(validateUpdatePlant.errors)));
+        }
+
+        plant.set(req.body);
         await plant.save();
 
         res.send({
