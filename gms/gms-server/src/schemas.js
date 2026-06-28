@@ -24,7 +24,21 @@ const updateGardenSchema = {
     additionalProperties: false
 };
 
+// Add a new schema for adding new plant documents to the plant collection.
+const addPlantSchema = {
+    type: 'object',
+    properties: {
+        name: { type: 'string', minLength: 3, maxLength: 100 },
+        type: { type: 'string', enum: ['Flower', 'Vegetable', 'Herb', 'Tree']},
+        status: { type: 'string', enum: ['Planted', 'Growing', 'Harvested']},
+        datePlanted: { type: 'string', pattern: '^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z)?$' }
+    },
+    required: ['name', 'type', 'status'],
+    additionalProperties: false
+}
+
 module.exports = {
     addGardenSchema,
-    updateGardenSchema
+    updateGardenSchema,
+    addPlantSchema
 };
