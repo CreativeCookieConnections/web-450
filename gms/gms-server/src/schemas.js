@@ -12,6 +12,19 @@ const addGardenSchema = {
     additionalProperties: false
 };
 
+// Add a validation schema for updating garden documents in the garden collection.
+const updateGardenSchema = {
+    type: 'object',
+    properties: {
+        name: { type: 'string', minLength: 3, maxLength: 100 },
+        location: { type: 'string', minLength: 1 },
+        description: { type: 'string', maxLength: 500 },
+    },
+    required: ['name', 'location'],
+    additionalProperties: false
+};
+
 module.exports = {
-    addGardenSchema
+    addGardenSchema,
+    updateGardenSchema
 };
