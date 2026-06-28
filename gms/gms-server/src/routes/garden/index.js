@@ -3,10 +3,11 @@ const Ajv = require('ajv');
 const createError = require('http-errors');
 const router = express.Router();
 const { Garden } = require('../../models/garden');
-const { addGardenSchema } = require('../../schemas/garden');
+const { addGardenSchema, updateGardenSchema } = require('../../schemas/garden');
 
 const ajv = new Ajv();
 const validateAddGarden = ajv.compile(addGardenSchema);
+const validateUpdateGarden = ajv.compile(updateGardenSchema);
 
 
 // GET request to return a list of documents from the gardens collection.
@@ -55,6 +56,10 @@ router.post('/', async (req, res, next) => {
 //PATCH request to update a garden document by gardenId in the gardens collection.
 router.patch('/:gardenId', async (req, res, next) => {
     try {
+        const valid = validateUpdateGarden(req.body);
+        if (!valid) {
+            return next(createError(400, ajv.errorsText(validateUpdateGarden.errors)));
+        }
         const garden = await Garden.findOneAndUpdate({ gardenId: req.params.gardenId });
         garden.set({
             name: req.body.name,
