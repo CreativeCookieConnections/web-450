@@ -5,5 +5,7 @@ export interface Garden {
     location: string;
     description?: string;
     dateCreated?: string;
-    dateModified: string;
+    dateModified?: string;
 }
+
+export type UpdateGardenDTO = Omit<Garden, '_id' | 'gardenId' | 'dateCreated' | 'dateModified'>;
