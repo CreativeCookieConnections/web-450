@@ -24,8 +24,8 @@ describe('GardenService', () => {
 
   it('should retrieve all gardens', () => {
     const dummyGardens: Garden[] = [
-      {_id: '1', gardenId: 1, name: 'Garden 1', location: 'Location 1', description: 'Description 1', dateModified: '2026-07-10'},
-      {_id: '2', gardenId: 2, name: 'Garden 2', location: 'Location 2', description: 'Description 2', dateModified: '2026-07-10'}
+      {_id: '1', gardenId: 1, name: 'Garden 1', location: 'Location 1', description: 'Description 1', dateCreated: '2026-07-10', dateModified: '2026-07-10'},
+      {_id: '2', gardenId: 2, name: 'Garden 2', location: 'Location 2', description: 'Description 2', dateCreated: '2026-07-10', dateModified: '2026-07-10'}
     ];
 
     service.getGardens().subscribe(gardens => {
@@ -52,7 +52,7 @@ describe('GardenService', () => {
   });
 
   it('should add a new garden', () => {
-    const newGarden: Garden = {_id: '3', gardenId: 3, name: 'Garden 3', location: 'Location 3', description: 'Description 3', dateModified: '2026-07-10'};
+    const newGarden: Garden = {_id: '3', gardenId: 3, name: 'Garden 3', location: 'Location 3', description: 'Description 3', dateCreated: '2026-07-10', dateModified: '2026-07-10'};
 
     service.addGarden(newGarden).subscribe(garden => {
       expect(garden).toEqual(newGarden);
@@ -64,15 +64,15 @@ describe('GardenService', () => {
   });
 
   it('should update an existing garden', () => {
-    const updatedGarden: Garden = {_id: '1', gardenId: 1, name: 'Updated Garden', location: 'Updated Location', description: 'Updated Description', dateModified: '2026-07-10'};
+    const updatedGardenDTO: UpdateGardenDTO = {name: 'Updated Garden', location: 'Updated Location', description: 'Updated Description'};
 
-    service.updateGarden(updatedGarden).subscribe(garden => {
-      expect(garden).toEqual(updatedGarden);
+    service.updateGarden(updatedGardenDTO, 1).subscribe(garden => {
+      expect(garden).toEqual(updatedGardenDTO);
     });
 
     const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/gardens/1`);
-    expect(req.request.method).toBe('PUT');
-    req.flush(updatedGarden);
+    expect(req.request.method).toBe('PATCH');
+    req.flush(updatedGardenDTO);
   });
 
   it('should delete a garden by ID', () => {
