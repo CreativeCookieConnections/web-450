@@ -19,7 +19,7 @@ export const routes: Routes = [
     component: GardenAddComponent
   },
   {
-    path: 'gardens/:id',
+    path: 'gardens/:gardenId',
     component: GardenDetailsComponent
   }
 ];
