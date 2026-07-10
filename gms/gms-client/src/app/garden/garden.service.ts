@@ -22,8 +22,8 @@ export class GardenService {
     return this.http.post<Garden>(`${environment.apiBaseUrl}/api/gardens`, garden);
 }
 
-  updateGarden(garden: Garden) {
-    return this.http.put<Garden>(`${environment.apiBaseUrl}/api/gardens/${garden.gardenId}`, garden);
+  updateGarden(garden: UpdateGardenDTO, gardenId: number) {
+    return this.http.patch<Garden>(`${environment.apiBaseUrl}/api/gardens/${gardenId}`, garden);
   }
 
   deleteGarden(gardenId: number) {
