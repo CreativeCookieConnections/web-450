@@ -3,7 +3,7 @@ const Ajv = require('ajv');
 const createError = require('http-errors');
 const router = express.Router();
 const { Garden } = require('../../models/garden');
-const { addGardenSchema, updateGardenSchema } = require('../../schemas/garden');
+const { addGardenSchema, updateGardenSchema } = require('../../schemas');
 
 const ajv = new Ajv();
 const validateAddGarden = ajv.compile(addGardenSchema);

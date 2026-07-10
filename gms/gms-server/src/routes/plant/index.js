@@ -2,7 +2,7 @@ const express = require('express');
 const Ajv = require('ajv');
 const createError = require('http-errors');
 const { Plant } = require('../../models/plant');
-const { addPlantSchema, updatePlantSchema } = require('../../schemas/plant');
+const { addPlantSchema, updatePlantSchema } = require('../../schemas');
 const router = express.Router();
 
 const ajv = new Ajv();
