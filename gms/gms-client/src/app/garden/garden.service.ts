@@ -1,4 +1,4 @@
-import { Garden } from './garden';
+import { AddGardenDTO, Garden } from './garden';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
@@ -18,9 +18,9 @@ export class GardenService {
     return this.http.get<Garden>(`${environment.apiBaseUrl}/api/gardens/${gardenId}`);
   }
 
-  addGarden(garden: Garden) {
+  addGarden(garden: AddGardenDTO) {
     return this.http.post<Garden>(`${environment.apiBaseUrl}/api/gardens`, garden);
-}
+  }
 
   updateGarden(garden: UpdateGardenDTO, gardenId: number) {
     return this.http.patch<Garden>(`${environment.apiBaseUrl}/api/gardens/${gardenId}`, garden);
