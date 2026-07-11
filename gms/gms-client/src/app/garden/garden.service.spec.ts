@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { GardenService } from './garden.service';
-import { Garden } from './garden';
+import { Garden, UpdateGardenDTO } from './garden';
 import { environment } from '../../environments/environment';
 
 describe('GardenService', () => {
@@ -52,15 +52,16 @@ describe('GardenService', () => {
   });
 
   it('should add a new garden', () => {
-    const newGarden: Garden = {_id: '3', gardenId: 3, name: 'Garden 3', location: 'Location 3', description: 'Description 3', dateCreated: '2026-07-10', dateModified: '2026-07-10'};
+    const updateGardenDTO: UpdateGardenDTO = {name: 'Updated Garden', location: 'Updated Location', description: 'Updated Description'};
+    const updatedGarden: Garden = {_id: '1', gardenId: 1, name: 'Updated Garden', location: 'Updated Location', description: 'Updated Description', dateCreated: '2026-07-10', dateModified: '2026-07-10'};
 
-    service.addGarden(newGarden).subscribe(garden => {
-      expect(garden).toEqual(newGarden);
+    service.addGarden(updateGardenDTO).subscribe(garden => {
+      expect(garden).toEqual(updatedGarden);
     });
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/gardens`);
-    expect(req.request.method).toBe('POST');
-    req.flush(newGarden);
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/gardens/1`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush(updatedGarden);
   });
 
   it('should update an existing garden', () => {
