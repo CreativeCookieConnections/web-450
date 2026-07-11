@@ -13,7 +13,13 @@ import { RouterLink } from '@angular/router';
     <div class="garden-page">
       <h1 class="garden-page_title">Garden List</h1>
 
-      <button class="garden-page_button" routerLink="/gardens/add"> Add Garden</button>
+      <button class="garden-page_button" routerLink="/gardens/add">Add Garden</button>
+
+      @if (serverMessage) {
+      <div [ngClass]="{'message-alert': serverMessageType === 'error', 'message-success': serverMessageType === 'success'}">
+        {{ serverMessage }}
+      </div>
+      }
 
       @if (gardens && gardens.length > 0) {
         <table class="garden-page_table">
@@ -36,7 +42,8 @@ import { RouterLink } from '@angular/router';
               <td class="garden-page_table-cell">{{garden.description}}</td>
               <td class="garden-page_table-cell">{{garden.dateCreated}}</td>
               <td class="garden-page_table-cell garden-page_table-cell--functions">
-                <a routerLink="/gardens/{{garden.gardenId}}" class="garden-page_icon-link"><i class="fas fa-trash-alt"></i></a>
+                <a routerLink="/gardens/{{garden.gardenId}}" class="garden-page_icon-link"><i class="fas fa-edit"></i></a>
+                <a (click)="deleteGarden(garden.gardenId)" class="garden-page_icon-link"><i class="fas fa-trash-alt"></i></a>
               </td>
             </tr>
           }
@@ -115,11 +122,32 @@ import { RouterLink } from '@angular/router';
     .garden-page_button:hover {
       background-color: #6c757d;
     }
+
+    .message-alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #a94442;
+      background-color: #f2dede;
+      border-color: #ebccd1;
+    }
+
+    .message-success {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #3c763d;
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+    }
   `
 })
 export class GardenListComponent {
   gardens: Garden[] = [];
-  errorMessage: string = '';
+  serverMessage: string | null = null;
+  serverMessageType: 'success' | 'error' | null = null;
 
   constructor(private gardenService: GardenService) {
     this.gardenService.getGardens().subscribe({
@@ -129,13 +157,36 @@ export class GardenListComponent {
       },
       error: (err: any) => {
         console.log(`Error occurred while retrieving gardens: ${err}`);
-        this.errorMessage = err.message;
       }
     });
   }
 
   deleteGarden(gardenId: number) {
-    alert(`Delete garden with ID: ${gardenId}`);
+    if (!confirm('Are you sure you want to delete this garden?')) {
+      return;
+    }
+
+    this.gardenService.deleteGarden(gardenId).subscribe({
+      next: () => {
+        console.log(`Garden with ID ${gardenId} deleted successfully.`);
+        this.gardens = this.gardens.filter(g => g.gardenId !== gardenId);
+        this.serverMessageType = 'success';
+        this.serverMessage = `Garden with ID ${gardenId} deleted successfully.`;
+        this.clearMessageAfterDelay();
+      }, error: (err: any) => {
+        console.log(`Error occurred while deleting garden with ID ${gardenId}: ${err}`);
+        this.serverMessageType = 'error';
+        this.serverMessage = `Error occured while deleting garden with ID ${gardenId}. Please try again later.`;
+        this.clearMessageAfterDelay();
+      }
+    });
     
+  }
+
+  private clearMessageAfterDelay() {
+    setTimeout(() => {
+      this.serverMessage = null;
+      this.serverMessageType = null;
+    }, 3000); // Clear the message after 3 seconds
   }
 }
