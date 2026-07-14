@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Plant } from './plant';
+import { Plant, UpdatePlantDTO } from './plant';
 
 @Injectable({
   providedIn: 'root'
@@ -20,5 +20,9 @@ export class PlantService {
 
   addPlant(plant: AddPlantDTO) {
     return this.http.post<Plant>(`${environment.apiBaseUrl}/api/plants/plant-add`, plant);
+  }
+
+  updatePlant(plantId: string, updatePlant: UpdatePlantDTO) {
+    return this.http.put<Plant>(`${environment.apiBaseUrl}/api/plants/${plantId}`, updatePlant);
   }
 }
