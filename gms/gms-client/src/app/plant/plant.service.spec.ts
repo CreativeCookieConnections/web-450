@@ -69,4 +69,19 @@ describe('PlantService', () => {
     expect(req.request.body).toEqual(newPlant);
     req.flush(mockResponse);
   });
+
+  // PUT /api/plants/:plantId
+  it('should update an existing plant via the API', () => {
+    const updatedPlant: UpdatePlantDTO = { name: 'Sunflower', type: 'Flower', status: 'Harvested'};
+    const mockResponse: Plant = {_id: '3', gardenId: 1, ...updatedPlant, datePlanted: '2023-01-03', dateHarvested: '2023-02-01'};
+
+    service.updatePlant('1', updatedPlant).subscribe(plant => {
+      expect(plant).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/plants/1`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(updatedPlant);
+    req.flush(mockResponse);
+  });
 });
