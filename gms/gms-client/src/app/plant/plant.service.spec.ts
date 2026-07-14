@@ -84,4 +84,15 @@ describe('PlantService', () => {
     expect(req.request.body).toEqual(updatedPlant);
     req.flush(mockResponse);
   });
+
+  // DELETE /api/plants/:plantId
+  it('should delete an existing plant via the API', () => {
+    service.deletePlant('1').subscribe(response => {
+      expect(response).toBeNull();
+    });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/plants/1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
 });
