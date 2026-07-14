@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { PlantService } from './plant.service';
-import { Plant } from './plant';
+import { AddPlantDTO, Plant } from './plant';
 import { environment } from '../../environments/environment';
+import it from '@angular/common/locales/extra/it';
 
 
 
@@ -45,12 +46,27 @@ describe('PlantService', () => {
   it('should retrieve a single plant by ID from the API', () => {
     const mockPlant: Plant = {_id: '1', gardenId: 1, name: 'Rose', type: 'Flower', status: 'Planted', datePlanted: '2023-01-01'};
 
-    service.getPlants('1').subscribe(plant => {
+    service.getPlant('1').subscribe(plant => {
       expect(plant).toEqual(mockPlant);
     });
 
     const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/plants/1`);
     expect(req.request.method).toBe('GET');
     req.flush(mockPlant);
+  });
+
+  // POST /api/plants/plant-add
+  it('should add a new plant via the API', () => {
+    const newPlant: AddPlantDTO = { name: 'Sunflower', type: 'Flower', status: 'Planted'};
+    const mockResponse: Plant = {_id: '3', gardenId: 1, ...newPlant, datePlanted: '2023-01-03'};
+
+    service.addPlant(newPlant).subscribe(plant => {
+      expect(plant).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/plants/plant-add`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(newPlant);
+    req.flush(mockResponse);
   });
 });
