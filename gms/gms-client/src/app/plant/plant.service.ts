@@ -13,4 +13,8 @@ export class PlantService {
   getPlants() {
     return this.http.get<Plant[]>(`${environment.apiBaseUrl}/api/plants`);
   }
+
+  getPlant(plantId: string) {
+    return this.http.get<Plant>(`${environment.apiBaseUrl}/api/plants/${plantId}`);
+  }
 }
