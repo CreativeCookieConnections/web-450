@@ -25,4 +25,8 @@ export class PlantService {
   updatePlant(plantId: string, updatePlant: UpdatePlantDTO) {
     return this.http.put<Plant>(`${environment.apiBaseUrl}/api/plants/${plantId}`, updatePlant);
   }
+
+  deletePlant(plantId: string) {
+    return this.http.delete(`${environment.apiBaseUrl}/api/plants/${plantId}`);
+  }
 }
