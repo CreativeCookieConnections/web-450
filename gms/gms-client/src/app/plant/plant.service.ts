@@ -17,4 +17,8 @@ export class PlantService {
   getPlant(plantId: string) {
     return this.http.get<Plant>(`${environment.apiBaseUrl}/api/plants/${plantId}`);
   }
+
+  addPlant(plant: AddPlantDTO) {
+    return this.http.post<Plant>(`${environment.apiBaseUrl}/api/plants/plant-add`, plant);
+  }
 }
