@@ -51,4 +51,44 @@ describe('PlantDetailsComponent', () => {
     component.plantForm.controls['status'].setValue('Planted');
     expect(component.plantForm.valid).toBeTruthy();
   });
+
+  it('should call updatePlant and navigate on successful form submission', fakeAsync(() => {
+    const updatePlantDTO = {
+      name: 'Test Plant',
+      type: 'Flower',
+      status: 'Planted',
+    };
+    const mockResponse: Plant = {
+      _id: '1',
+      gardenId: 1,
+      name: 'Test Plant',
+      type: 'Flower',
+      status: 'Planted',
+      datePlanted: '2023-01-01',
+      dateHarvested: '2023-01-15',
+      dateCreated: '2023-01-01',
+      dateModified: '2023-01-15',
+    };
+    spyOn(plantService, 'updatePlant').and.returnValue(of(mockResponse));
+    spyOn(router, 'navigate');
+    component.plantForm.controls['name'].setValue(updatePlantDTO.name);
+    component.plantForm.controls['type'].setValue(updatePlantDTO.type);
+    component.plantForm.controls['status'].setValue(updatePlantDTO.status);
+    component.onSubmit();
+    tick();
+    expect(plantService.updatePlant).toHaveBeenCalledWith('1', updatePlantDTO);
+    expect(router.navigate).toHaveBeenCalledWith(['/plants']);
+  }));
+
+  it('should handle error on form submission failure', fakeAsync(() => {
+    spyOn(plantService, 'updatePlant').and.returnValue(throwError('Error updating plant'));
+    spyOn(console, 'error');
+    component.plantForm.controls['name'].setValue('Test Plant');
+    component.plantForm.controls['type'].setValue('Flower');
+    component.plantForm.controls['status'].setValue('Planted');
+    component.onSubmit();
+    tick();
+    expect(plantService.updatePlant).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith('Error updating plant', 'Error updating plant');
+  }));
 });
