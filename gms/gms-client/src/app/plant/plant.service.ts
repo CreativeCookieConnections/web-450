@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Plant, UpdatePlantDTO } from './plant';
+import { AddPlantDTO, Plant, UpdatePlantDTO } from './plant';
 
 @Injectable({
   providedIn: 'root'
@@ -28,5 +28,9 @@ export class PlantService {
 
   deletePlant(plantId: string) {
     return this.http.delete(`${environment.apiBaseUrl}/api/plants/${plantId}`);
+  }
+
+  addPlant(gardenId: number, plant: AddPlantDTO) {
+    return this.http.post<Plant>(`${environment.apiBaseUrl}/api/gardens/${gardenId}/plants`, plant);
   }
 }
