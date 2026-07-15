@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
     <div class="plant-page">
       <h1 class ="plant-page_title">Plant List</h1>
 
+      @if (plants && plants.length > 0) {
       <table *ngIf="plants && plants.length > 0" class="plant-page_table">
         <thead class="plant-page_table-head">
           <tr class="plant-page_table-row">
@@ -32,7 +33,9 @@ import { RouterLink } from '@angular/router';
           </tr>
         </tbody>
       </table>
+    } @ else {
       <p *ngIf="!plants || plants.length === 0" class="plant-page_no-plants">No plants found, consider adding one...</p>
+    }
     </div>
   `,
 })
@@ -40,5 +43,15 @@ export class PlantListComponent {
   plants: Plant[] = [];
 
 
-  constructor(private plantService: PlantService) {}
+  constructor(private plantService: PlantService) {
+    this.plantService.getPlants().subscribe({
+      next: (plants: Plant[]) => {
+        this.plants = plants;
+        console.log(`Plants: ${JSON.stringify(this.plants)} `);
+      },
+      error: (err: any) => {
+        console.error(`Error occured while retrieving plants: ${err}`);
+      }
+    });
+  }
 }
