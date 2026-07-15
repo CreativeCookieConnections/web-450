@@ -56,15 +56,15 @@ describe('PlantService', () => {
   });
 
   // POST /api/plants/plant-add
-  it('should add a new plant via the API', () => {
+  it('should add a new plant with gardenId via the API', () => {
     const newPlant: AddPlantDTO = { name: 'Sunflower', type: 'Flower', status: 'Planted'};
     const mockResponse: Plant = {_id: '3', gardenId: 1, ...newPlant, datePlanted: '2023-01-03'};
 
-    service.addPlant(newPlant).subscribe(plant => {
+    service.addPlant(1, newPlant).subscribe(plant => {
       expect(plant).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/plants/plant-add`);
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/gardens/1/plants`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newPlant);
     req.flush(mockResponse);
