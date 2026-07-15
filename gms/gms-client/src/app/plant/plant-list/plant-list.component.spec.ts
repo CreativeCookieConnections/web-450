@@ -5,7 +5,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Plant } from '../plant';
 import { By } from '@angular/platform-browser';
-import { throwError } from 'rxjs';
+import { throwError, of } from 'rxjs';
 import it from '@angular/common/locales/extra/it';
 
 describe('PlantListComponent', () => {
@@ -50,5 +50,23 @@ describe('PlantListComponent', () => {
     fixture.detectChanges(); // Trigger the component's constructor
 
     expect(component.plants.length).toBe(0); // Ensure no plants are loaded
+  });
+
+  // Check if the PlantListComponent correctly deletes a plant document.
+  it('should delete a plant', () => {
+    const mockPlants: Plant[] = [
+      {_id: '1', gardenId: 1, name: 'Rose', type: 'Flower', status: 'Planted', datePlanted: '2023-01-01'},
+      {_id: '2', gardenId: 1, name: 'Tulip', type: 'Flower', status: 'Planted', datePlanted: '2023-02-01'}
+    ];
+
+    spyOn(window, 'confirm').and.returnValue(true); // Mock confirm dialog to return true
+    spyOn(plantService, 'deletePlant').and.returnValue(of({})); // Mock deletePlant to return an observable
+    component.plants = mockPlants;
+
+    component.deletePlant('1'); // Call deletePlant method
+    fixture.detectChanges(); // Trigger change detection
+
+    expect(component.plants.length).toBe(1); // Ensure one plant is deleted
+    expect(component.plants[0]._id).toBe('2'); // Ensure the remaining plant is the correct one
   });
 });
