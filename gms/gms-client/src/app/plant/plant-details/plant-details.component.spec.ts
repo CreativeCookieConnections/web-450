@@ -16,26 +16,39 @@ describe('PlantDetailsComponent', () => {
   let router: Router;
   let activatedRoute: ActivatedRoute;
 
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [
+        ReactiveFormsModule,
+        HttpClientModule,
+        RouterTestingModule,
+        PlantDetailsComponent,
+      ],
+      providers: [
+        PlantService,
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => '1' } } },
+        },
+      ],
+    }).compileComponents();
 
-beforeEach(async () => {
-  await TestBed.configureTestingModule({
-  imports: [ReactiveFormsModule, HttpClientModule, RouterTestingModule, PlantDetailsComponent],
-  providers: [
-    PlantService,
-      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => '1' } } } }
-]
-}).compileComponents();
+    fixture = TestBed.createComponent(PlantDetailsComponent);
+    component = fixture.componentInstance;
+    plantService = TestBed.inject(PlantService);
+    router = TestBed.inject(Router);
+    activatedRoute = TestBed.inject(ActivatedRoute);
+    fixture.detectChanges();
+  });
 
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-  fixture = TestBed.createComponent(PlantDetailsComponent);
-  component = fixture.componentInstance;
-  plantService = TestBed.inject(PlantService);
-  router = TestBed.inject(Router);
-  activatedRoute = TestBed.inject(ActivatedRoute);
-  fixture.detectChanges();
-});
-
-it('should create', () => {
-  expect(component).toBeTruthy();
+  it('should have a valid form when all fields are filled correctly', () => {
+    component.plantForm.controls['name'].setValue('Test Plant');
+    component.plantForm.controls['type'].setValue('Flower');
+    component.plantForm.controls['status'].setValue('Planted');
+    expect(component.plantForm.valid).toBeTruthy();
   });
 });
