@@ -5,6 +5,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Plant } from '../plant';
 import { By } from '@angular/platform-browser';
+import { throwError } from 'rxjs';
 import it from '@angular/common/locales/extra/it';
 
 describe('PlantListComponent', () => {
@@ -40,5 +41,14 @@ describe('PlantListComponent', () => {
 
     const plantRows = fixture.debugElement.queryAll(By.css('.plant-page_table-body .plant-page_table-row'));
     expect(plantRows.length).toBeGreaterThan(0); // Ensure there are rows in the DOM
+  });
+
+  // Check if the component correctly handles errors when fetching plants.
+  it('should handle error when fetching plants', () => {
+    spyOn(plantService, 'getPlants').and.returnValue(throwError('Error fetching plants'));
+    
+    fixture.detectChanges(); // Trigger the component's constructor
+
+    expect(component.plants.length).toBe(0); // Ensure no plants are loaded
   });
 });
