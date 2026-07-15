@@ -29,7 +29,11 @@ import { RouterLink } from '@angular/router';
             <td class="plant-page_table-cell">{{plant.name}}</td>
             <td class="plant-page_table-cell">{{plant.type}}</td>
             <td class="plant-page_table-cell">{{plant.status}}</td>
-            <td class="plant-page_table-cell">{{plant.datePlanted | date}}</td>
+            <td class="plant-page_table-cell">{{plant.datePlanted}}</td>
+            <td class="plant-page_table-cell plant-page_table-cell-functions">
+              <a routerLink="/plants/{{plant._id}}" class="plant-page_icon-link"><i class="fas fa-edit"></i></a>
+              <a (click)="deletePlant(plant._id)" class="plant-page_icon-link"><i class="fas fa-trash-alt"></i></a>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -51,6 +55,23 @@ export class PlantListComponent {
       },
       error: (err: any) => {
         console.error(`Error occured while retrieving plants: ${err}`);
+        this.plants = [];
+      }
+    });
+  }
+
+  deletePlant(plantId: string) {
+    if(!confirm('Are you sure you want to delete this plant?')) {
+      return;
+    }
+
+    this.plantService.deletePlant(plantId).subscribe({
+      next: () => {
+        console.log(`Plant with ID ${plantId} deleted successfully`);
+        this.plants = this.plants.filter(p=>p._id !== plantId);
+      },
+      error: (err: any) => {
+        console.error(`Error occured while deleting plant with ID ${plantId}: ${err}`);
       }
     });
   }
