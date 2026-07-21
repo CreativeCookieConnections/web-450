@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { GardenListComponent } from './garden-list.component';
 import { GardenService } from '../garden.service';
 import { of, throwError } from 'rxjs';
@@ -6,6 +6,7 @@ import { Garden } from '../garden';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { By } from '@angular/platform-browser';
+import it from '@angular/common/locales/extra/it';
 
 describe('GardenListComponent', () => {
   let component: GardenListComponent;
@@ -69,5 +70,33 @@ it('should delete a garden', () => {
   expect(component.gardens.length).toBe(1);
   expect(component.gardens[0].gardenId).toBe(2);
   });
-});
 
+  it('should filter gardens based on search term', fakeAsync(() => {
+    const mockGardens: Garden[] = [
+      {_id: '1', gardenId: 1, name: 'Rose Garden', location: 'North', description: 'Beautiful roses', dateCreated: '2024-09-04T21:39:36.605Z'},
+      {_id: '2', gardenId: 2, name: 'Tulip Garden', location: 'South', description: 'Colorful tulips', dateCreated: '2024-09-05T21:39:36.605Z'},
+      {_id: '3', gardenId: 3, name: 'Sunflower Garden', location: 'East', description: 'Brighht sunflowers', dateCreated: '2024-09-06T21:39:36.605Z'}
+    ];
+
+    component.gardens = mockGardens;
+    component.allGardens = mockGardens;
+    fixture.detectChanges(); // Trigger change detection
+
+    component.textSearchControl.setValue('Rose');
+    tick(500); // Simulate debounce time
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.gardens.length).toBe(1);
+    expect(component.gardens[0].name).toBe('Rose Garden');
+
+    component.textSearchControl.setValue('Garden');
+    tick(500); // Simulate debounce time
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.gardens.length).toBe(3);
+
+    component.textSearchControl.setValue('Nonexistent');
+    tick(500); // Simulate debounce time
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.gardens.length).toBe(0);
+}));
+
+});
