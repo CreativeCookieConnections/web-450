@@ -69,4 +69,34 @@ describe('PlantListComponent', () => {
     expect(component.plants.length).toBe(1); // Ensure one plant is deleted
     expect(component.plants[0]._id).toBe('2'); // Ensure the remaining plant is the correct one
   });
+
+  it('should filter plants based on filter type', () => {
+    const mockPlants: Plant[] = [
+      {_id: '1', gardenId: 1, name: 'Rose', type: 'Flower', status: 'Planted', datePlanted: '2023-01-01'},
+      {_id: '2', gardenId: 1, name: 'Tulip', type: 'Flower', status: 'Planted', datePlanted: '2023-02-01'},
+      {_id: '3', gardenId: 1, name: 'Carrot', type: 'Vegetable', status: 'Planted', datePlanted: '2023-03-01'}
+    ];
+
+    component.plants = mockPlants;
+    component.allPlants = mockPlants;
+    fixture.detectChanges(); // Trigger change detection
+
+    component.filterPlants('Flower'); // Call filterPlants method
+    component.filterPlants();
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.plants.length).toBe(2); // Ensure only Flower type plants are displayed
+    expect(component.plants[0].name).toBe('Rose'); // Ensure the first plant is Rose
+    expect(component.plants[1].name).toBe('Tulip'); // Ensure the second plant is Tulip
+  
+    component.filterType = 'Vegetable';
+    component.filterPlants(); // Call filterPlants method
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.plants.length).toBe(1); // Ensure only Vegetable type plants are displayed
+    expect(component.plants[0].name).toBe('Carrot'); // Ensure the remaining plant is Carrot
+  
+    component.filterType = '';
+    component.filterPlants(); // Call filterPlants method
+    fixture.detectChanges(); // Trigger change detection
+    expect(component.plants.length).toBe(3); // Ensure all plants are displayed
+  });
 });
