@@ -2,16 +2,22 @@ import { Component } from '@angular/core';
 import { GardenService } from '../garden.service';
 import { Garden } from '../garden';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { debounceTime, map, of } from 'rxjs';
 
 
 @Component({
   selector: 'app-garden-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   template: `
     <div class="garden-page">
       <h1 class="garden-page_title">Garden List</h1>
+
+      <div class="garden-page_search-container">
+        <input type="text" placeholder="Search gardens by name" [formControl]="textSearchControl" class="garden-page_search"/>
+      </div>
 
       <button class="garden-page_button" routerLink="/gardens/add">Add Garden</button>
 
@@ -21,7 +27,7 @@ import { RouterLink } from '@angular/router';
       </div>
       }
 
-      @if (gardens && gardens.length > 0) {
+      @if (gardens.length > 0) {
         <table class="garden-page_table">
           <thead class="garden-page_table-head">
             <tr class="garden-page_table-row">
@@ -142,23 +148,45 @@ import { RouterLink } from '@angular/router';
       background-color: #dff0d8;
       border-color: #d6e9c6;
     }
+
+    .garden-page_search-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .garden-page_search {
+      flex: 1;
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+    }
   `
 })
 export class GardenListComponent {
   gardens: Garden[] = [];
+  allGardens: Garden[] = [];
   serverMessage: string | null = null;
   serverMessageType: 'success' | 'error' | null = null;
+
+  textSearchControl = new FormControl('');
 
   constructor(private gardenService: GardenService) {
     this.gardenService.getGardens().subscribe({
       next: (gardens: Garden[]) => {
         this.gardens = gardens;
+        this.allGardens = gardens;
         console.log(`Gardens: ${JSON.stringify(this.gardens)}`);
       },
       error: (err: any) => {
         console.log(`Error occurred while retrieving gardens: ${err}`);
       }
     });
+
+    this.textSearchControl.valueChanges.pipe(debounceTime(500)).subscribe(val=>this.filterGardens(val || ''));
+  }
+
+  filterGardens(name: string) {
+    this.gardens = this.allGardens.filter(g => g.name.toLowerCase().includes(name.toLowerCase()));
   }
 
   deleteGarden(gardenId: number) {
