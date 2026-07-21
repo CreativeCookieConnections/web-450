@@ -3,16 +3,33 @@ import { PlantService } from '../plant.service';
 import { Plant } from '../plant';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-plant-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="plant-page">
       <h1 class ="plant-page_title">Plant List</h1>
 
+      <div class="plant-page_filter-container">
+        <select [(ngModel)]="filterType" class="plant-page_filter">
+          <option value="">All</option>
+          <option value="Vegetable">Vegetable</option>
+          <option value="Flower">Flower</option>
+          <option value="Herb">Herb</option>
+          <option value="Tree">Tree</option>
+        </select>
+
+        <input type="button" (click)="filterPlants()" value="Filter Plants" class="plant-page_filter-button"/>
+        </div>
+
       <button class="plant-page_button" routerLink="/plants/add">Add Plant</button>
+
+      <div class="plant-page_highlight-info">
+        <p>Rows highlighted in green indicate plants that were planted within the last 30 days.</p>
+      </div>
 
       @if (serverMessage) {
       <div [ngClass]="{'message-alert': serverMessageType === 'error', 'message-success': serverMessageType === 'success'}">
@@ -46,7 +63,7 @@ import { RouterLink } from '@angular/router';
         </tbody>
       </table>
     } @ else {
-      <p *ngIf="!plants || plants.length === 0" class="plant-page_no-plants">No plants found, consider adding one...</p>
+      <p class="plant-page_no-plants">No plants found, consider adding one...</p>
     }
     </div>
   `,
@@ -138,10 +155,47 @@ import { RouterLink } from '@angular/router';
     border-color: #d6e9c6;
   }
 
+  .plant-page_filter-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .plant-page_filter {
+    flex: 1;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .plant-page_filter-button {
+    background-color: #563d7c;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .plant-page_filter-button:hover {
+    background-color: #6c757d;
+  }
+
+  .plant-page_highlight-info {
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 1rem;
+  }
+
   `
 })
 export class PlantListComponent {
+  allPlants: Plant[] = [];
   plants: Plant[] = [];
+  filterType: string = '';
   serverMessage: string | null = null;
   serverMessageType: 'success' | 'error' | null = null;
 
@@ -149,6 +203,7 @@ export class PlantListComponent {
   constructor(private plantService: PlantService) {
     this.plantService.getPlants().subscribe({
       next: (plants: Plant[]) => {
+        this.allPlants = plants;
         this.plants = plants;
         console.log(`Plants: ${JSON.stringify(this.plants)} `);
       },
@@ -159,6 +214,14 @@ export class PlantListComponent {
     });
   }
 
+  filterPlants() {
+    if (this.filterType === '') {
+      this.plants = this.allPlants;
+      return;
+    }
+    this.plants = this.allPlants.filter(plant => plant.type === this.filterType);
+  }
+
   deletePlant(plantId: string) {
     if(!confirm('Are you sure you want to delete this plant?')) {
       return;
@@ -167,6 +230,7 @@ export class PlantListComponent {
     this.plantService.deletePlant(plantId).subscribe({
       next: () => {
         console.log(`Plant with ID ${plantId} deleted successfully`);
+        this.allPlants = this.allPlants.filter(p=>p._id !== plantId);
         this.plants = this.plants.filter(p=>p._id !== plantId);
         this.serverMessageType='success';
         this.serverMessage=`Plant with ID ${plantId} deleted successfully`;
@@ -175,7 +239,7 @@ export class PlantListComponent {
       error: (err: any) => {
         console.error(`Error occured while deleting plant with ID ${plantId}: ${err}`);
         this.serverMessageType='error';
-        this.serverMessage=`Error occured while deleting plant with ID ${plantId}: ${err}`;
+        this.serverMessage=`Error occured while deleting plant with ID ${plantId}. Please try again later.`;
         this.clearMessageAfterDelay();
       }
     });
