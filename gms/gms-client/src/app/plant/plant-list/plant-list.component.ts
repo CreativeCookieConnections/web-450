@@ -4,11 +4,12 @@ import { Plant } from '../plant';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HighlightRecentDirective } from './highlight-recent.directives';
 
 @Component({
   selector: 'app-plant-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, HighlightRecentDirective],
   template: `
     <div class="plant-page">
       <h1 class ="plant-page_title">Plant List</h1>
@@ -38,7 +39,7 @@ import { FormsModule } from '@angular/forms';
       }
 
       @if (plants && plants.length > 0) {
-      <table *ngIf="plants && plants.length > 0" class="plant-page_table">
+      <table class="plant-page_table">
         <thead class="plant-page_table-head">
           <tr class="plant-page_table-row">
             <th class="plant-page_table-header">PlantID</th>
@@ -49,7 +50,8 @@ import { FormsModule } from '@angular/forms';
           </tr>
         </thead>
         <tbody class="plant-page_table-body">
-          <tr *ngFor="let plant of plants" class="plant-page_table-row">
+          @ for (plant of plants; track plant) {
+          <tr class="plant-page_table-row" [appHighlightRecent]="plant.datePlanted ?? ''">
             <td class="plant-page_table-cell">{{plant._id}}</td>
             <td class="plant-page_table-cell">{{plant.name}}</td>
             <td class="plant-page_table-cell">{{plant.type}}</td>
